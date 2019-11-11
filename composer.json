@@ -1,0 +1,45 @@
+{
+    "name": "miracuthbert/laravel-roles",
+    "description": "An Eloquent roles and permissions package for Laravel 5.8 and up",
+    "keywords": ["laravel", "roles", "permissions"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cuthbert Mirambo",
+            "email": "miracuthbert@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.1.3",
+        "illuminate/console": "5.8.*|^6.0",
+        "illuminate/database": "5.8.*|^6.0",
+        "illuminate/support": "5.8.*|^6.0",
+        "kalnoy/nestedset": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "orchestra/testbench": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Miracuthbert\\LaravelRoles\\": "src"
+        },
+        "classmap": [
+            "database/seeds"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Miracuthbert\\LaravelRoles\\Tests\\": "tests"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Miracuthbert\\LaravelRoles\\LaravelRolesServiceProvider"
+            ]
+        }
+    }
+}
