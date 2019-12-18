@@ -39,11 +39,11 @@ class LaravelRolesServiceProvider extends ServiceProvider
 
             // publish migrations
             $this->publishes([
-                __DIR__ . '/../migrations/create_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_permissions_table.php'),
-                __DIR__ . '/../migrations/create_user_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_user_permissions_table.php'),
-                __DIR__ . '/../migrations/create_roles_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_roles_table.php'),
-                __DIR__ . '/../migrations/create_role_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_role_permissions_table.php'),
-                __DIR__ . '/../migrations/create_user_roles_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_user_roles_table.php'),
+                __DIR__ . '/../database/migrations/create_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_permissions_table.php'),
+                __DIR__ . '/../database/migrations/create_user_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_user_permissions_table.php'),
+                __DIR__ . '/../database/migrations/create_roles_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_roles_table.php'),
+                __DIR__ . '/../database/migrations/create_role_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_role_permissions_table.php'),
+                __DIR__ . '/../database/migrations/create_user_roles_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_user_roles_table.php'),
             ], 'laravel-roles-migrations');
 
 
