@@ -64,13 +64,15 @@ trait HasPermissions
                 $query->where('id', $permission->id);
             })->get();
 
-            foreach ($roles as $role) {
-                if ($this->roles()->where('roles.usable', true)
-                    ->where('slug', $role->slug)
-                    ->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', Carbon::now())->count()) {
-                    return true;
-                }
+            $count = $this->roles()
+                ->active()
+                ->whereIn('slug', $roles->pluck('slug')->toArray())
+                ->whereNull('expires_at')
+                ->orWhere('expires_at', '>', Carbon::now())
+                ->count();
+
+            if ($count > 0) {
+                return true;
             }
 
             return false;
@@ -79,14 +81,15 @@ trait HasPermissions
                 return false;
             }
 
-            foreach ($roles as $role) {
-                if ($this->roles()->where('roles.usable', true)
-                    ->where('slug', $role->slug)
-                    ->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', Carbon::now())
-                    ->count()) {
-                    return true;
-                }
+            $count = $this->roles()
+                ->active()
+                ->whereIn('slug', $roles->pluck('slug')->toArray())
+                ->whereNull('expires_at')
+                ->orWhere('expires_at', '>', Carbon::now())
+                ->count();
+
+            if ($count > 0) {
+                return true;
             }
         }
 
