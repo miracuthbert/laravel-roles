@@ -46,9 +46,9 @@ class Permission extends Model implements Permitable
      */
     public static function getPermissionTypeFromModel($model)
     {
-        $map = config('laravel-roles.models');
+        $models = config('laravel-roles.models');
 
-        return $map[$model];
+        return array_search($model, $models);
     }
 
 

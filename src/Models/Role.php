@@ -74,9 +74,9 @@ class Role extends Model implements Permitable
      */
     public static function getRoleTypeFromModel($model)
     {
-        $map = config('laravel-roles.models');
+        $models = config('laravel-roles.models');
 
-        return $map[$model];
+        return array_search($model, $models);
     }
 
     /**
