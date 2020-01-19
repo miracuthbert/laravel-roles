@@ -77,7 +77,7 @@ class Roles
      * @param null $type
      * @return static
      */
-    private static function permissionsMap(array $permissions, $type = null)
+    public static function permissionsMap(array $permissions, $type = null)
     {
         return collect($permissions)->map(function ($item) use ($type) {
             $newPermission = [
