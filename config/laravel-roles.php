@@ -80,7 +80,7 @@ return [
      | eg. team for App\Team, company for App\Company, etc.
      */
     'models' => [
-        // 'team' => '\App\Team::class',
+        // 'team' => \App\Team::class,
     ],
 
 ];
