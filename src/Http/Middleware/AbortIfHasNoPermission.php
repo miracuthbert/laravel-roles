@@ -12,11 +12,12 @@ class AbortIfHasNoPermission
      * @param  \Illuminate\Http\Request $request
      * @param  \Closure $next
      * @param $permission
+     * @param mixed $giver
      * @return mixed
      */
-    public function handle($request, Closure $next, $permission)
+    public function handle($request, Closure $next, $permission, $giver = null)
     {
-        if (!optional($request->user())->can($permission)) {
+        if (!optional($request->user())->can($permission, $giver)) {
             abort(config('laravel-roles.middleware.abort_code', 403));
         }
 
