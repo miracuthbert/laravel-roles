@@ -2,6 +2,7 @@
 
 namespace Miracuthbert\LaravelRoles\Models\Traits;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Miracuthbert\LaravelRoles\Models\Permission;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +23,20 @@ trait HasPermissions
      * Check if given model has given permission.
      *
      * @param $permission
-     * @param null $giver
+     * @param string|\Illuminate\Database\Eloquent\Model|null $giver
+     *
+     * If `string` is passed the format should be: 'type:id'.
+     *
+     * The `type` is a key with a matching value
+     * in the package's config `models` key.
+     *
+     * eg. If type is `team` it will resolve for 'App\Team' model
+     *
+     * Note: 'team' => \App\Team::class must be registered in the
+     * config model's key or the check will return false
+     *
+     * The `id` is a value of the corresponding model id.
+     *
      * @return bool
      */
     public function hasPermissionTo($permission, $giver = null)
@@ -33,8 +47,21 @@ trait HasPermissions
     /**
      * Check if model has permission through role.
      *
-     * @param $permission
-     * @param string|null $giver
+     * @param mixed $permission
+     * @param string|\Illuminate\Database\Eloquent\Model|null $giver
+     *
+     * If `string` is passed the format should be: 'type:id'.
+     *
+     * The `type` is a key with a matching value
+     * in the package's config `models` key.
+     *
+     * eg. If type is `team` it will resolve for 'App\Team' model
+     *
+     * Note: 'team' => \App\Team::class must be registered in the
+     * config model's key or the check will return false
+     *
+     * The `id` is a value of the corresponding model id.
+     *
      * @return mixed
      */
     public function hasPermissionThroughRole($permission, $giver = null)
@@ -42,17 +69,31 @@ trait HasPermissions
         if (isset($giver)) {
 
             // check if giver is an array
-            if (is_array($giver) && count($params = explode(':', $giver)) == 2) {
-                list($id, $model) = $params;
+            if (count($params = explode(':', $giver)) == 2) {
 
-                // find model based on id
-                $giver = $model::find($id);
+                // split type and id
+                list($type, $id) = $params;
+
+                // find related model based on type in config
+                $model = Arr::get(config('laravel-roles.models'), strtolower($type));
+
+                // check if null or not set
+                if (!$model) {
+                    return false;
+                }
+
+                // model key
+                $modelKey = (new $model)->getRouteKeyName();
+
+                // find model based on id or route key
+                $giver = isset($modelKey) ? $model::where($modelKey, $id)->first() : $model::find($id);
 
                 // check if giver is not instance of Eloquent Model
                 if (!$giver instanceof Model) {
                     return false;
                 }
             } else {
+
                 // check if giver is not instance of Eloquent Model
                 if (!$giver instanceof Model) {
                     return false;

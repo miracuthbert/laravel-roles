@@ -88,7 +88,7 @@ type `team` under `permitables` in the config file which can be used to filter o
 You can also map `permitables` types (mentioned above) to related models.
 
 ```php
-'team' => '\App\Team::class'
+'team' => \App\Team::class
 ```
 
 > Each model can only be related to a single permitable type.
@@ -241,16 +241,32 @@ public function __construct() {
 
 ### Permissions
 
-To check a user has access via permission use a `slug` or `name` of a valid Role model. 
+To check a user has access via permission use a `slug` or `name` of a valid Permission model. 
 
 eg. a permission named `browse admin` can be passed as `browse-admin` or `browse admin`.
 
 > The permission must be `usable` (active).
 
+An additional parameter `giver` is accepted, if you have to check for permissions based on the model that assigned it.
+
+For example, to check a user has a permission through a role of type `team`:
+ 
+- You can be pass an instance of `Team` model 
+- Or pass a type with a corresponding id: `team:1`. 
+
+Whether the `id` is  a `slug` or a basic `id`, it will be resolved by the package.
+
+> When passing a type make sure it has a corresponding model registered under the package's config in the `models` key.
+
 #### Via Gates
 
 ```php
 if(Gate::allows('browse-admin')) {
+    // do something
+}
+
+// With giver
+if(Gate::allows('browse-admin', $team)) {
     // do something
 }
 ```
@@ -259,11 +275,21 @@ if(Gate::allows('browse-admin')) {
 if(Gate::denies('browse-admin')) {
     return abort(403);
 }
+
+// With giver
+if(Gate::denies('browse-admin', $team)) {
+    return abort(403);
+}
 ```
 
 #### Via User model
 ```php
 if($user->can('assign roles')) {
+    // do something
+}
+
+// With giver
+if($user->can('assign roles', $team)) {
     // do something
 }
 ```
@@ -274,10 +300,20 @@ if($user->can('assign roles')) {
 @can('impersonate user')
     <!-- The user can impersonate another user -->
 @endcan
+
+// With giver
+@can('impersonate user', $team)
+    <!-- The user can impersonate another user -->
+@endcan
 ```
 
 ```blade
 @cannot('impersonate user')
+    <!-- The user can't impersonate another user -->
+@endcannot
+
+// With giver
+@cannot('impersonate user', $team)
     <!-- The user can't impersonate another user -->
 @endcannot
 ```
@@ -297,6 +333,7 @@ Route::middleware(['permission: browse admin'])->get('/admin/dashboard');
 Route::middleware(['permission: browse-admin'])->get('/admin/dashboard');
 ```
 
+
 ##### In Controller
 
 ```php
@@ -306,6 +343,12 @@ public function __construct() {
     
     // Via permission slug `browse-admin`
     $this->middleware(['permission: browse-admin']);
+
+    // Via permission name `browse admin` with giver, the id should be fetched from the request or dynamically resolved
+    $this->middleware(['permission: browse admin, team:' . $request->team]);
+    
+    // Via permission slug `browse-admin` with giver, the id should be fetched from the request or dynamically resolved
+    $this->middleware(['permission: browse-admin, team:' . $request->team]);
 }
 ```
 
