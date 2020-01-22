@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
 
 trait HasRoles
 {
+    use LaravelRolesHelperTrait;
+
     /**
      * Determine if the entity is the last Admin of its kind.
      *
@@ -213,128 +215,13 @@ trait HasRoles
     }
 
     /**
-     * Get count of role instance.
+     * Determine if user has any of the given roles.
      *
-     * @param array ...$roles
+     * @param string|array|null $roles
      * @return bool
      */
-    public function hasRole(...$roles)
+    public function hasRole($roles)
     {
-        return (bool)$this->roles()
-            ->whereIn('slug', Arr::wrap($roles))
-            ->where('usable', true)
-            ->whereNull('expires_at')
-            ->orWhere('expires_at', '>', now()->toDateTimeString())
-            ->count();
-    }
-
-    /**
-     * Get roles assigned to the entity.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'user_roles')
-            ->withTimestamps()
-            ->withPivot(['expires_at']);
-    }
-
-    /**
-     * Get the role ID from the mixed value.
-     *
-     * @param $value
-     * @return mixed
-     */
-    protected function parseRoleId($value)
-    {
-        if ($this->isInstanceOfRoleModel($value)) {
-            return $value->id;
-        }
-
-        return optional($this->findRole($value))->id;
-    }
-
-    /**
-     * Get role from value.
-     *
-     * @param $value
-     * @return mixed
-     */
-    protected function findRole($value)
-    {
-        if ($this->isInstanceOfRoleModel($value)) {
-            return $value;
-        }
-
-        if (is_int($value)) {
-            return Role::find($value);
-        }
-
-        return Role::where('slug', $value)->first();
-    }
-
-    /**
-     * Get an array of valid roles ids.
-     *
-     * @param array $role
-     * @return array
-     */
-    protected function getRolesIds(array $role)
-    {
-        return Role::whereIn('slug', $role)
-            ->get(['id'])
-            ->all();
-    }
-
-    /**
-     * Filter out collection of permissions which are not instance of `Role` model.
-     *
-     * @param Collection $roles
-     * @return Collection
-     */
-    private function filterRolesCollection(Collection $roles)
-    {
-        return $roles->filter(function ($role) {
-            return $role instanceof Role;
-        });
-    }
-
-    /**
-     * Check and return an array of role ids.
-     *
-     * @param $values
-     * @return array
-     */
-    private function getWorkableRoles($values)
-    {
-        if (is_int($values)) {
-            return array(
-                optional($this->findRole($values))->id
-            );
-        }
-
-        if (is_array($values)) {
-            return Arr::wrap($this->getRolesIds($values));
-        }
-
-        if ($this->isInstanceOfRoleModel($values)) {
-            return array($values->id);
-        }
-
-        if ($values instanceof Collection) {
-            return Arr::wrap($this->filterRolesCollection($values)->pluck('id')->all());
-        }
-    }
-
-    /**
-     * Determine if given value is instance of role model.
-     *
-     * @param $value
-     * @return bool
-     */
-    private function isInstanceOfRoleModel($value): bool
-    {
-        return $value instanceof Role;
+        return (bool)$this->checkHasRoles(Arr::wrap($roles));
     }
 }

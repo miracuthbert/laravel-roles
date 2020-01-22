@@ -4,12 +4,12 @@ namespace Miracuthbert\LaravelRoles\Models\Traits;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Miracuthbert\LaravelRoles\Models\Permission;
 use Illuminate\Database\Eloquent\Model;
 
 trait HasPermissions
 {
-    use CanAccessPermissions;
+    use CanAccessPermissions,
+        LaravelRolesHelperTrait;
 
     /**
      * Boot method for trait.
@@ -105,12 +105,7 @@ trait HasPermissions
                 $query->where('id', $permission->id);
             })->get();
 
-            $count = $this->roles()
-                ->active()
-                ->whereIn('slug', $roles->pluck('slug')->toArray())
-                ->whereNull('expires_at')
-                ->orWhere('expires_at', '>', Carbon::now())
-                ->count();
+            $count = $this->checkHasRoles($this->parseRolesToArray($roles));
 
             if ($count > 0) {
                 return true;
@@ -118,16 +113,11 @@ trait HasPermissions
 
             return false;
         } else {
-            if (!($roles = $permission->roles)) {
+            if (!($roles = $this->getPermissionRoles($permission))) {
                 return false;
             }
 
-            $count = $this->roles()
-                ->active()
-                ->whereIn('slug', $roles->pluck('slug')->toArray())
-                ->whereNull('expires_at')
-                ->orWhere('expires_at', '>', Carbon::now())
-                ->count();
+            $count = $this->checkHasRoles($this->parseRolesToArray($roles));
 
             if ($count > 0) {
                 return true;
@@ -145,11 +135,9 @@ trait HasPermissions
      */
     public function hasPermission($permission)
     {
-        return (bool)$this->permissions()
+        return (bool)$this->validPermissions()
             ->where('name', $permission->name)
             ->orWhere('slug', $permission->slug)
-            ->whereNull('expires_at')
-            ->orWhere('expires_at', '>', Carbon::now())
             ->count();
     }
 
@@ -283,26 +271,13 @@ trait HasPermissions
     }
 
     /**
-     * Get all valid permissions.
-     *
-     * @return mixed
-     */
-    public function validPermissions()
-    {
-        return $this->permissions()
-            ->whereNull('expires_at')
-            ->orWhere('expires_at', '>', now())
-            ->get();
-    }
-
-    /**
      * Get an array of mapped permissions.
      *
      * @param $ids
      * @param $existingPermissions
      * @return array
      */
-    protected function getMappedPermissions($ids, $existingPermissions)
+    public function getMappedPermissions($ids, $existingPermissions)
     {
         // filter and map by `id`
         $raw = collect($ids)->filter(function ($id) use ($existingPermissions) {
@@ -320,17 +295,5 @@ trait HasPermissions
         })->toArray();
 
         return $data;
-    }
-
-    /**
-     * Get permissions assigned to the model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class, 'user_permissions')
-            ->withTimestamps()
-            ->withPivot(['expires_at']);
     }
 }

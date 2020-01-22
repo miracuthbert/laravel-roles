@@ -68,6 +68,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         // Setup laravel roles user model
         $app['config']->set('laravel-roles.users.model', User::class);
 
+        // Setup laravel roles cache
+        $app['config']->set('laravel-roles.cache.enabled', false);
+
         $app['config']->set('database.default', 'testbench');
 
         // Setup default database to use sqlite :memory:

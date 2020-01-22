@@ -22,7 +22,7 @@ trait CanAccessPermissions
      * @param $value
      * @return mixed
      */
-    protected function parsePermissionId($value)
+    public function parsePermissionId($value)
     {
         return $value instanceof Permission ? $value->id : $value;
     }
