@@ -2,11 +2,58 @@
 
 namespace Miracuthbert\LaravelRoles\Models\Traits;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Miracuthbert\LaravelRoles\Models\Role;
 
 trait CanUseRoles
 {
+    /**
+     * The "booting" method for trait.
+     *
+     * @return void
+     */
+    public static function bootCanUseRoles()
+    {
+        $flushCache = function ($model) {
+            $model->flushCache();
+        };
+
+        // If the model doesn't use SoftDeletes.
+        if (method_exists(static::class, 'restored')) {
+            static::restored($flushCache);
+        }
+
+        static::deleted($flushCache);
+        static::saved($flushCache);
+
+        static::deleting(function ($model) {
+            if (method_exists($model, 'bootSoftDeletes') && !$model->forceDeleting) {
+                return;
+            }
+
+            $model->roles()->forceDelete();
+        });
+    }
+
+    /**
+     * Flush the entity cache.
+     *
+     * @return void
+     */
+    public function flushCache()
+    {
+        $type = array_search(get_class($this), config('laravel-roles.models'));
+
+        if (!$type) {
+            return;
+        }
+
+        $cacheKey = $type . '_' . $this->getKey();
+
+        Cache::forget('laravelroles_roles_' . $cacheKey);
+    }
+
     /**
      * Create a new role under the entity.
      *

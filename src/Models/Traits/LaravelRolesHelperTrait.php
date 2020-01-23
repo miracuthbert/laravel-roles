@@ -289,4 +289,36 @@ trait LaravelRolesHelperTrait
             ->orWhere('expires_at', '>', now())
             ->get();
     }
+
+    /**
+     * Get role's owned by a given entity.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $giver
+     * @return mixed
+     */
+    public function getGiverRoles($giver)
+    {
+        if ($this->cacheEnabled()) {
+            $cacheKey = array_search(get_class($giver), config('laravel-roles.models')) . '_' . $giver->getKey();
+
+            return Cache::remember('laravelroles_roles_' . $cacheKey,
+                $this->cacheExpiryTime(),
+                function () use ($giver) {
+                    return $giver->roles;
+                });
+        }
+
+        return $giver->roles;
+    }
+
+    /**
+     * Find a permission by id from all permissions.
+     *
+     * @param $permission
+     * @return mixed
+     */
+    public function findPermissionFromCollection($permission)
+    {
+        return $this->getAllPermissions()->where('id', $permission->id)->first();
+    }
 }

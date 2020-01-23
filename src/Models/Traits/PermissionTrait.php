@@ -7,7 +7,12 @@ use Miracuthbert\LaravelRoles\Models\Role;
 
 trait PermissionTrait
 {
-    public static function PermissionTrait()
+    /**
+     * The "booting" method for trait.
+     *
+     * @return void
+     */
+    public static function bootPermissionTrait()
     {
         $flushCache = function ($model) {
             $model->flushCache();

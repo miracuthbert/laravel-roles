@@ -13,7 +13,9 @@ trait HasPermissions
         LaravelRolesHelperTrait;
 
     /**
-     * Boot method for trait.
+     * The "booting" method for trait.
+     *
+     * @return void
      */
     public static function bootHasPermissions()
     {
@@ -114,9 +116,11 @@ trait HasPermissions
             }
 
             // get roles with given permission
-            $roles = $giver->roles()->whereHas('permissions', function ($query) use ($permission) {
-                $query->where('id', $permission->id);
-            })->get();
+            $loadedPermission = $this->findPermissionFromCollection($permission);
+
+            $giverRoles = $this->getGiverRoles($giver);
+
+            $roles = $loadedPermission->roles->whereIn('slug', $this->parseRolesToArray($giverRoles));
 
             $count = $this->checkHasRoles($this->parseRolesToArray($roles));
 
