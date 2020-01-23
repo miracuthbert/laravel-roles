@@ -5,6 +5,7 @@ namespace Miracuthbert\LaravelRoles\Models\Traits;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 trait HasPermissions
 {
@@ -17,6 +18,18 @@ trait HasPermissions
     public static function bootHasPermissions()
     {
         //
+    }
+
+    /**
+     * Flush the user's permissions cache.
+     *
+     * @return void
+     */
+    public function flushUserPermissionsCache()
+    {
+        $cacheKey = 'laravelroles_permissions_' . $this->userModelCacheKey() . '_' . $this->getKey();
+
+        Cache::forget($cacheKey);
     }
 
     /**
@@ -150,6 +163,8 @@ trait HasPermissions
     {
         $this->permissions()->detach();
 
+        $this->flushUserPermissionsCache();
+
         return true;
     }
 
@@ -172,6 +187,8 @@ trait HasPermissions
             ->updateExistingPivot($id, [
                 'expires_at' => $expiresAt
             ]);
+
+        $this->flushUserPermissionsCache();
 
         return true;
     }
@@ -202,6 +219,8 @@ trait HasPermissions
                     $this->revokePermissionAt($permission);
                 });
 
+            $this->flushUserPermissionsCache();
+
             return true;
         }
 
@@ -213,6 +232,8 @@ trait HasPermissions
             ->each(function ($permission) {
                 $this->revokePermissionAt($permission);
             });
+
+        $this->flushUserPermissionsCache();
 
         return true;
     }
@@ -234,6 +255,8 @@ trait HasPermissions
         $this->permissions()->attach($this->getWorkablePermissions($permission), [
             'expires_at' => $expiresAt
         ]);
+
+        $this->flushUserPermissionsCache();
 
         return true;
     }
@@ -266,6 +289,8 @@ trait HasPermissions
         if (count($changes['attached']) === 0) {
             return false;
         }
+
+        $this->flushUserPermissionsCache();
 
         return true;
     }

@@ -4,6 +4,7 @@ namespace Miracuthbert\LaravelRoles\Models\Traits;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Miracuthbert\LaravelRoles\Models\Role;
 use Illuminate\Support\Collection;
 
@@ -12,9 +13,21 @@ trait HasRoles
     use LaravelRolesHelperTrait;
 
     /**
+     * Flush the user's roles cache.
+     *
+     * @return void
+     */
+    public function flushUserRolesCache()
+    {
+        $cacheKey = 'laravelroles_roles_' . $this->userModelCacheKey() . '_' . $this->getKey();
+
+        Cache::forget($cacheKey);
+    }
+
+    /**
      * Determine if the entity is the last Admin of its kind.
      *
-     * @param Role $role
+     * @param \Miracuthbert\LaravelRoles\Models\Role $role
      * @param array $permissions
      * @return bool
      */
@@ -61,6 +74,8 @@ trait HasRoles
                 );
             }
 
+            $this->flushUserRolesCache();
+
             return true;
         }
 
@@ -80,12 +95,20 @@ trait HasRoles
                 $this->roles()->detach(
                     $query->pluck('id')->toArray()
                 );
+
+                $this->flushUserRolesCache();
+
+                return true;
             }
+
+            return false;
         } else { // detach all `ADMIN` based roles
             $this->roles()->detach(
                 $builder->get()->pluck('id')->toArray()
             );
         }
+
+        $this->flushUserRolesCache();
 
         return true;
     }
@@ -93,7 +116,7 @@ trait HasRoles
     /**
      * Revoke given role now or at the given time.
      *
-     * @param $role
+     * @param \Miracuthbert\LaravelRoles\Models\Role $role
      * @param null $expiresAt
      * @param bool $never
      * @return bool
@@ -118,6 +141,8 @@ trait HasRoles
         if (!$updated) {
             return false;
         }
+
+        $this->flushUserRolesCache();
 
         return true;
     }
@@ -148,6 +173,8 @@ trait HasRoles
                     });
             }
 
+            $this->flushUserRolesCache();
+
             return true;
         }
 
@@ -165,6 +192,8 @@ trait HasRoles
                     $this->revokeRoleAt($role);
                 });
 
+            $this->flushUserRolesCache();
+
             return true;
         }
 
@@ -179,13 +208,15 @@ trait HasRoles
                 $this->revokeRoleAt($role);
             });
 
+        $this->flushUserRolesCache();
+
         return true;
     }
 
     /**
      * Assign role to model.
      *
-     * @param $role
+     * @param \Miracuthbert\LaravelRoles\Models\Role $role
      * @param $expiresAt
      * @return bool
      */
@@ -210,6 +241,8 @@ trait HasRoles
 
         // assign role to user
         $this->roles()->attach($id, ['expires_at' => $expiresAt]);
+
+        $this->flushUserRolesCache();
 
         return true;
     }

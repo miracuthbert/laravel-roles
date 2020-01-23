@@ -3,6 +3,7 @@
 namespace Miracuthbert\LaravelRoles\Models;
 
 use Miracuthbert\LaravelRoles\Models\Traits\HasSlug;
+use Miracuthbert\LaravelRoles\Models\Traits\PermissionTrait;
 use Miracuthbert\LaravelRoles\Models\Traits\PermitableScopes;
 use Miracuthbert\LaravelRoles\Permitable;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,8 @@ class Permission extends Model implements Permitable
 {
     use SoftDeletes,
         HasSlug,
-        PermitableScopes;
+        PermitableScopes,
+        PermissionTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -49,16 +51,5 @@ class Permission extends Model implements Permitable
         $models = config('laravel-roles.models');
 
         return array_search($model, $models);
-    }
-
-
-    /**
-     * Get all the roles with this permission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'role_permissions');
     }
 }

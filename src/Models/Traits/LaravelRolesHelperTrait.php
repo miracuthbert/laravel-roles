@@ -66,7 +66,7 @@ trait LaravelRolesHelperTrait
             return $this->getCurrentUserRoles();
         }
 
-        $cacheKey = 'laravelroles_roles_' . $this->userModelCacheKey();
+        $cacheKey = 'laravelroles_roles_' . $this->userModelCacheKey() . '_' . $this->getKey();
 
         return Cache::remember($cacheKey, $this->cacheExpiryTime(), function () {
             return $this->getCurrentUserRoles();
@@ -220,7 +220,7 @@ trait LaravelRolesHelperTrait
             return $this->getCurrentUserPermissions();
         }
 
-        $cacheKey = 'laravelroles_permissions_' . $this->userModelCacheKey();
+        $cacheKey = 'laravelroles_permissions_' . $this->userModelCacheKey() . '_' . $this->getKey();
 
         return Cache::remember($cacheKey, $this->cacheExpiryTime(), function () {
             return $this->getCurrentUserPermissions();

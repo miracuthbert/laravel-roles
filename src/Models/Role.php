@@ -2,7 +2,7 @@
 
 namespace Miracuthbert\LaravelRoles\Models;
 
-use Miracuthbert\LaravelRoles\Models\Traits\CanUsePermissions;
+use Miracuthbert\LaravelRoles\Models\Traits\RoleTrait;
 use Miracuthbert\LaravelRoles\Models\Traits\HasSlug;
 use Miracuthbert\LaravelRoles\Models\Traits\PermitableScopes;
 use Miracuthbert\LaravelRoles\Permitable;
@@ -15,7 +15,7 @@ class Role extends Model implements Permitable
     use SoftDeletes,
         NodeTrait,
         HasSlug,
-        CanUsePermissions,
+        RoleTrait,
         PermitableScopes;
 
     /**
@@ -77,22 +77,6 @@ class Role extends Model implements Permitable
         $models = config('laravel-roles.models');
 
         return array_search($model, $models);
-    }
-
-    /**
-     * Get all the users that are assigned this role.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function users()
-    {
-        $model = config('laravel-roles.users.model', 'App\\User');
-
-        $model = new $model;
-
-        return $this->belongsToMany(get_class($model), 'user_roles')
-            ->withTimestamps()
-            ->withPivot(['expires_at']);
     }
 
     /**

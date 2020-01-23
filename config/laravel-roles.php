@@ -34,6 +34,39 @@ return [
 
     /*
      |--------------------------------------------------------------------------
+     | Cache Settings
+     |--------------------------------------------------------------------------
+     |
+     | Configure whether to enable caching of roles and permissions.
+     |
+     | The default cache driver defined in `config/cache` will be used.
+     |
+     | Note: The package will handle cache clearing whenever there is a change
+     | to permissions and roles.
+     */
+    'cache' => [
+
+        /*
+         |--------------------------------------------------------------------------
+         | Enable cache
+         |--------------------------------------------------------------------------
+         |
+         | Set whether to enable caching in package.
+         */
+        'enabled' => true,
+
+        /*
+         |--------------------------------------------------------------------------
+         | Expiration time in SECONDS
+         |--------------------------------------------------------------------------
+         |
+         | Set how long the roles and permissions should be stored in cache.
+         */
+        'expiration_time' => 3600,
+    ],
+
+    /*
+     |--------------------------------------------------------------------------
      | Permission Settings
      |--------------------------------------------------------------------------
      |
@@ -43,18 +76,6 @@ return [
         'types' => [
             'default' => 'admin',
         ],
-    ],
-
-    /*
-     |--------------------------------------------------------------------------
-     | Cache Settings
-     |--------------------------------------------------------------------------
-     |
-     | Configure whether to enable caching and the expiry time.
-     */
-    'cache' => [
-        'enabled' => true,
-        'expiration_time' => 3600,
     ],
 
     /*
