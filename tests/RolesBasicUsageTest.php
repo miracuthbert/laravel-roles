@@ -52,6 +52,8 @@ class RolesBasicUsageTest extends TestCase
         // assert role assigned
         $this->assertTrue($user->assignRole($role, $date));
 
+        $user->refresh();
+
         // assert date matches
         $this->assertTrue($date->eq($user->roles->where('slug', $role->slug)->first()->pivot->expires_at));
     }
@@ -166,6 +168,8 @@ class RolesBasicUsageTest extends TestCase
 
         // delete user's roles history
         $this->assertTrue($user->detachRoles());
+
+        $user->refresh();
 
         // assert no roles available
         $this->assertCount(0, $user->roles->where('type', Permitable::ADMIN)->all());

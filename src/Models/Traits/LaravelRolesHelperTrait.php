@@ -270,11 +270,15 @@ trait LaravelRolesHelperTrait
      */
     public function getCurrentUserRoles()
     {
-        return $this->roles()
-            ->active()
-            ->whereNull('expires_at')
-            ->orWhere('expires_at', '>', Carbon::now())
-            ->get();
+        $this->load([
+            'roles' => function($query) {
+                $query->active()
+                    ->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', Carbon::now());
+            },
+        ]);
+
+        return $this->roles;
     }
 
     /**

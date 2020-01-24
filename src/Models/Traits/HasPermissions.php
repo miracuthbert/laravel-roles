@@ -152,10 +152,19 @@ trait HasPermissions
      */
     public function hasPermission($permission)
     {
-        return (bool)$this->validPermissions()
-            ->where('name', $permission->name)
-            ->orWhere('slug', $permission->slug)
-            ->count();
+        if (!$this->cacheEnabled()) {
+            return (bool)$this->validPermissions()
+                ->where('slug', $permission->slug)
+                ->count();
+        }
+
+        $count = $this->validPermissions()->where('slug', $permission->slug)->count();
+
+        if ($count > 0) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -163,7 +172,7 @@ trait HasPermissions
      *
      * @return bool
      */
-    public function deletePermissions()
+    public function detachPermissions()
     {
         $this->permissions()->detach();
 
@@ -256,7 +265,13 @@ trait HasPermissions
             return false;
         }
 
-        $this->permissions()->attach($this->getWorkablePermissions($permission), [
+        $workablePermissions = $this->getWorkablePermissions($permission);
+
+        if (!$workablePermissions) {
+            return false;
+        }
+
+        $this->permissions()->attach($workablePermissions, [
             'expires_at' => $expiresAt
         ]);
 
