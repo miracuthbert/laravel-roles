@@ -45,6 +45,12 @@ trait PermissionTrait
     public function flushCache()
     {
         Cache::forget('laravelroles_permissions_map');
+
+        $this->users->chunk(100, function ($collection) {
+            $collection->each(function ($user) {
+                $user->flushCache();
+            });
+        });
     }
 
     /**
@@ -58,7 +64,7 @@ trait PermissionTrait
 
         $model = new $model;
 
-        return $this->belongsToMany(get_class($model), 'user_roles')
+        return $this->belongsToMany(get_class($model), 'user_permissions')
             ->withTimestamps()
             ->withPivot(['expires_at']);
     }
