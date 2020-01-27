@@ -15,7 +15,7 @@ trait LaravelRolesUserTrait
      *
      * @return void
      */
-    public static function LaravelRolesUserTrait()
+    public static function bootLaravelRolesUserTrait()
     {
         $flushCache = function ($user) {
             $user->flushCache();

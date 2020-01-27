@@ -3,13 +3,11 @@
 namespace Miracuthbert\LaravelRoles\Tests\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Miracuthbert\LaravelRoles\Models\Traits\HasPermissions;
-use Miracuthbert\LaravelRoles\Models\Traits\HasRoles;
+use Miracuthbert\LaravelRoles\Models\Traits\LaravelRolesUserTrait;
 
 class User extends Authenticatable
 {
-    use HasPermissions,
-        HasRoles;
+    use LaravelRolesUserTrait;
 
     /**
      * The attributes that are mass assignable.
