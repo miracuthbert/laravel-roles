@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Miracuthbert\LaravelRoles\Helpers\Users;
 
 trait HasPermissions
 {
@@ -29,7 +30,7 @@ trait HasPermissions
      */
     public function flushUserPermissionsCache()
     {
-        $cacheKey = 'laravelroles_permissions_' . $this->userModelCacheKey() . '_' . $this->getKey();
+        $cacheKey = 'laravelroles_permissions_' . Users::userModelCacheKey() . '_' . $this->getKey();
 
         Cache::forget($cacheKey);
     }

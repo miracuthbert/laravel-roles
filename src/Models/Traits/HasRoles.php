@@ -5,6 +5,7 @@ namespace Miracuthbert\LaravelRoles\Models\Traits;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Miracuthbert\LaravelRoles\Helpers\Users;
 use Miracuthbert\LaravelRoles\Models\Role;
 use Illuminate\Support\Collection;
 
@@ -19,7 +20,7 @@ trait HasRoles
      */
     public function flushUserRolesCache()
     {
-        $cacheKey = 'laravelroles_roles_' . $this->userModelCacheKey() . '_' . $this->getKey();
+        $cacheKey = 'laravelroles_roles_' . Users::userModelCacheKey() . '_' . $this->getKey();
 
         Cache::forget($cacheKey);
     }

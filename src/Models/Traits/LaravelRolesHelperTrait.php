@@ -7,21 +7,12 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Miracuthbert\LaravelRoles\Helpers\Users;
 use Miracuthbert\LaravelRoles\Models\Permission;
 use Miracuthbert\LaravelRoles\Models\Role;
 
 trait LaravelRolesHelperTrait
 {
-    /**
-     * The cache key for the user model.
-     *
-     * @return string
-     */
-    public function userModelCacheKey()
-    {
-        return 'user';
-    }
-
     /**
      * Determine if caching is allowed.
      *
@@ -66,7 +57,7 @@ trait LaravelRolesHelperTrait
             return $this->getCurrentUserRoles();
         }
 
-        $cacheKey = 'laravelroles_roles_' . $this->userModelCacheKey() . '_' . $this->getKey();
+        $cacheKey = 'laravelroles_roles_' . Users::userModelCacheKey() . '_' . $this->getKey();
 
         return Cache::remember($cacheKey, $this->cacheExpiryTime(), function () {
             return $this->getCurrentUserRoles();
@@ -220,7 +211,7 @@ trait LaravelRolesHelperTrait
             return $this->getCurrentUserPermissions();
         }
 
-        $cacheKey = 'laravelroles_permissions_' . $this->userModelCacheKey() . '_' . $this->getKey();
+        $cacheKey = 'laravelroles_permissions_' . Users::userModelCacheKey() . '_' . $this->getKey();
 
         return Cache::remember($cacheKey, $this->cacheExpiryTime(), function () {
             return $this->getCurrentUserPermissions();
