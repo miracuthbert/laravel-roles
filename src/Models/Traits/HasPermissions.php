@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Miracuthbert\LaravelRoles\Helpers\ConfigHelper;
 use Miracuthbert\LaravelRoles\Helpers\Users;
 
 trait HasPermissions
@@ -153,7 +154,7 @@ trait HasPermissions
      */
     public function hasPermission($permission)
     {
-        if (!$this->cacheEnabled()) {
+        if (!ConfigHelper::cacheEnabled()) {
             return (bool)$this->validPermissions()
                 ->where('slug', $permission->slug)
                 ->count();

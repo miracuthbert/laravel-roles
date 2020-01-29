@@ -6,33 +6,13 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
+use Miracuthbert\LaravelRoles\Helpers\ConfigHelper;
 use Miracuthbert\LaravelRoles\Helpers\Users;
 use Miracuthbert\LaravelRoles\Models\Permission;
 use Miracuthbert\LaravelRoles\Models\Role;
 
 trait LaravelRolesHelperTrait
 {
-    /**
-     * Determine if caching is allowed.
-     *
-     * @return mixed
-     */
-    public function cacheEnabled()
-    {
-        return Config::get('laravel-roles.cache.enabled', true);
-    }
-
-    /**
-     * The time in seconds before cache expiry.
-     *
-     * @return mixed
-     */
-    public function cacheExpiryTime()
-    {
-        return Config::get('laravel-roles.cache.expiration_time', 3600);
-    }
-
     /**
      * Determine if user has given roles.
      *
@@ -53,13 +33,13 @@ trait LaravelRolesHelperTrait
      */
     public function getUserRoles()
     {
-        if (!$this->cacheEnabled()) {
+        if (!ConfigHelper::cacheEnabled()) {
             return $this->getCurrentUserRoles();
         }
 
         $cacheKey = 'laravelroles_roles_' . Users::userModelCacheKey() . '_' . $this->getKey();
 
-        return Cache::remember($cacheKey, $this->cacheExpiryTime(), function () {
+        return Cache::remember($cacheKey, ConfigHelper::cacheExpiryTime(), function () {
             return $this->getCurrentUserRoles();
         });
     }
@@ -207,13 +187,13 @@ trait LaravelRolesHelperTrait
      */
     public function validPermissions()
     {
-        if (!$this->cacheEnabled()) {
+        if (!ConfigHelper::cacheEnabled()) {
             return $this->getCurrentUserPermissions();
         }
 
         $cacheKey = 'laravelroles_permissions_' . Users::userModelCacheKey() . '_' . $this->getKey();
 
-        return Cache::remember($cacheKey, $this->cacheExpiryTime(), function () {
+        return Cache::remember($cacheKey, ConfigHelper::cacheExpiryTime(), function () {
             return $this->getCurrentUserPermissions();
         });
     }
@@ -225,7 +205,7 @@ trait LaravelRolesHelperTrait
      */
     public function getAllPermissions()
     {
-        if (!$this->cacheEnabled()) {
+        if (!ConfigHelper::cacheEnabled()) {
             return Permission::with([
                 'roles' => function ($query) {
                     $query->active();
@@ -233,7 +213,7 @@ trait LaravelRolesHelperTrait
             ])->active()->get();
         }
 
-        return Cache::remember('laravelroles_permissions_map', $this->cacheExpiryTime(), function () {
+        return Cache::remember('laravelroles_permissions_map', ConfigHelper::cacheExpiryTime(), function () {
             return Permission::with([
                 'roles' => function ($query) {
                     $query->active();
@@ -293,11 +273,11 @@ trait LaravelRolesHelperTrait
      */
     public function getGiverRoles($giver)
     {
-        if ($this->cacheEnabled()) {
+        if (ConfigHelper::cacheEnabled()) {
             $cacheKey = array_search(get_class($giver), config('laravel-roles.models')) . '_' . $giver->getKey();
 
             return Cache::remember('laravelroles_roles_' . $cacheKey,
-                $this->cacheExpiryTime(),
+                ConfigHelper::cacheExpiryTime(),
                 function () use ($giver) {
                     return $giver->roles;
                 });
