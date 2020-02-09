@@ -95,7 +95,7 @@ You can also map `permitables` types (mentioned above) to related models.
 
 ## Usage
 
-To start assigning roles and permissions to users, you must first add the `HasPermissions` and `HasRoles` trait to the `User` model.
+To start assigning roles and permissions to users, you must first add the `LaravelRolesUserTrait` trait to the `User` model.
 
 > The User model should match the one indicated in the package's config file. See [configuration](#configuration).
 
