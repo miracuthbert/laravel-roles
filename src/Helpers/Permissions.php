@@ -2,9 +2,10 @@
 
 namespace Miracuthbert\LaravelRoles\Helpers;
 
-use Miracuthbert\LaravelRoles\Models\Permission;
 use Exception;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Miracuthbert\LaravelRoles\Models\Permission;
 
 class Permissions
 {
@@ -16,17 +17,19 @@ class Permissions
     public static function gates()
     {
         try {
-            return Permission::active()->get()->map(function ($permission) {
-                // define gate by `name`
-                Gate::define($permission->name, function ($user, $giver = null) use ($permission) {
-                    return $user->hasPermissionTo($permission, $giver);
-                });
+            if (Schema::hasTable('permissions')) {
+                Permission::active()->get()->map(function ($permission) {
+                    // define gate by `name`
+                    Gate::define($permission->name, function ($user, $giver = null) use ($permission) {
+                        return $user->hasPermissionTo($permission, $giver);
+                    });
 
-                // define gate by `slug`
-                Gate::define($permission->slug, function ($user, $giver = null) use ($permission) {
-                    return $user->hasPermissionTo($permission, $giver);
+                    // define gate by `slug`
+                    Gate::define($permission->slug, function ($user, $giver = null) use ($permission) {
+                        return $user->hasPermissionTo($permission, $giver);
+                    });
                 });
-            });
+            }
         } catch (Exception $e) {
             // todo: add key in config to enable debug
             logger()->debug($e->getMessage(), $e->getTrace());
