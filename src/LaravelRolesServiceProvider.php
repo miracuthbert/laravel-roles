@@ -11,6 +11,8 @@ use Miracuthbert\LaravelRoles\Http\Middleware\AbortIfHasNoRole;
 
 class LaravelRolesServiceProvider extends ServiceProvider
 {
+    private $migrationCount = 5;
+
     /**
      * Register services.
      *
@@ -39,11 +41,11 @@ class LaravelRolesServiceProvider extends ServiceProvider
 
             // publish migrations
             $this->publishes([
-                __DIR__ . '/../database/migrations/create_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_permissions_table.php'),
-                __DIR__ . '/../database/migrations/create_user_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_user_permissions_table.php'),
-                __DIR__ . '/../database/migrations/create_roles_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_roles_table.php'),
-                __DIR__ . '/../database/migrations/create_role_permissions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_role_permissions_table.php'),
-                __DIR__ . '/../database/migrations/create_user_roles_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_user_roles_table.php'),
+                __DIR__ . '/../database/migrations/create_permissions_table.php.stub' => $this->migratePath('create_permissions_table'),
+                __DIR__ . '/../database/migrations/create_user_permissions_table.php.stub' => $this->migratePath('create_user_permissions_table'),
+                __DIR__ . '/../database/migrations/create_roles_table.php.stub' => $this->migratePath('create_roles_table'),
+                __DIR__ . '/../database/migrations/create_role_permissions_table.php.stub' => $this->migratePath('create_role_permissions_table'),
+                __DIR__ . '/../database/migrations/create_user_roles_table.php.stub' => $this->migratePath('create_user_roles_table'),
             ], 'laravel-roles-migrations');
 
 
@@ -75,5 +77,13 @@ class LaravelRolesServiceProvider extends ServiceProvider
         $router = $this->app['router'];
         $router->aliasMiddleware('permission', AbortIfHasNoPermission::class);
         $router->aliasMiddleware('role', AbortIfHasNoRole::class);
+    }
+
+    private function migratePath(string $file): string
+    {
+        $timeKludge = date('Y_m_d_His', time() - --$this->migrationCount);
+        return database_path(
+            'migrations/' . $timeKludge . "_$file.php"
+        );
     }
 }
