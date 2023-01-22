@@ -28,6 +28,12 @@ You first need to publish the packages migrations:
 php artisan vendor:publish --tag=laravel-roles-migrations
 ```
 
+For those who had published migrations earlier use command(s) below to publish updated changes:
+
+```
+php artisan vendor:publish --tag=laravel-roles-permitable-migrations
+```
+
 Then run the migrate command:
 
 ```
@@ -56,9 +62,16 @@ php artisan vendor:publish --tag=laravel-roles-config
 
 The package includes configuration for:  
 
+### Role Sharing
+
+`allow_shared_roles` key enables the package to query for roles that can be shared by [models](#models).
+
+Example, an `admin` role for `Team` model can be shared and easily managed by the app admin, compared to
+a `manager` role that may vary between teams.
+
 ### User Model
 
-The default user model is `App\User::class` the default namespace of `User` model.
+The default user model is `App\Models\User::class` the default namespace of `User` model.
 
 You can change the default user model by changing `model` key under `users` in the config file.
 
@@ -88,7 +101,7 @@ type `team` under `permitables` in the config file which can be used to filter o
 You can also map `permitables` types (mentioned above) to related models.
 
 ```php
-'team' => \App\Team::class
+'team' => \App\Models\Team::class
 ```
 
 > Each model can only be related to a single permitable type.
@@ -104,14 +117,16 @@ To start assigning roles and permissions to users, you must first add the `Larav
 #### Basic
 To assign a role to a user you can call the `assignRole` method on a User model instance. 
 
-The `assignRole` method accepts a `role` (Role model instance) and `expiresAt` a date which is optional.
+The `assignRole` method accepts a `role` (Role model instance), `expiresAt` a date which is optional and
+ `giver` an instance Eloquent Model among `models` registered in [configuration](#models) which is optional.
 
 ```php
-$user->assignRole($role, $expiresAt);
+$user->assignRole($role, $expiresAt, $giver);
 ```
 
 > The expiresAt value must be a future date.
 
+> giver value can omitted when role assigned belongs to a registered model
 #### Via Console
 
 To assign role via console use command below, passing in a registered User's `email` and a valid Role `slug`.

@@ -93,11 +93,12 @@ trait LaravelRolesUserTrait
         return $this->hasPermissionThroughRole($permission, $giver) || $this->hasPermission($permission);
     }
 
+
     /**
      * Check if model has permission through role.
      *
-     * @param mixed $permission
-     * @param string|\Illuminate\Database\Eloquent\Model|null $giver
+     * @param string|mixed                                      $permission
+     * @param string|\Illuminate\Database\Eloquent\Model|null   $giver
      *
      * If `string` is passed the format should be: 'type:id'.
      *
@@ -156,7 +157,7 @@ trait LaravelRolesUserTrait
 
             $roles = $loadedPermission->roles->whereIn('slug', $this->parseRolesToArray($giverRoles));
 
-            $count = $this->checkHasRoles($this->parseRolesToArray($roles));
+            $count = $this->checkHasRoles($this->parseRolesToArray($roles), $giver);
 
             if ($count > 0) {
                 return true;
@@ -168,7 +169,7 @@ trait LaravelRolesUserTrait
                 return false;
             }
 
-            $count = $this->checkHasRoles($this->parseRolesToArray($roles));
+            $count = $this->checkHasRoles($this->parseRolesToArray($roles), $giver);
 
             if ($count > 0) {
                 return true;
@@ -579,14 +580,15 @@ trait LaravelRolesUserTrait
     /**
      * Assign role to model.
      *
-     * @param \Miracuthbert\LaravelRoles\Models\Role $role
-     * @param $expiresAt
+     * @param \Miracuthbert\LaravelRoles\Models\Role    $role
+     * @param \DateTimeInterface|mixed|null             $expiresAt
+     * @param \Illuminate\Database\Eloquent\Model|null  $giver
      * @return bool
      */
-    public function assignRole($role, $expiresAt = null)
+    public function assignRole($role, $expiresAt = null, $giver = null)
     {
         // stop if role exists and is valid
-        if ($this->hasRole($role->slug)) {
+        if ($this->hasRole($role->slug, $giver)) {
             return false;
         }
 
@@ -602,8 +604,13 @@ trait LaravelRolesUserTrait
             return false;
         }
 
+        // stop if giver not valid model
+        if (($giver instanceof Model) && (array_search(get_class($giver), config('laravel-roles.models')) === false)) {
+            return false;
+        }
+
         // assign role to user
-        $this->roles()->attach($id, ['expires_at' => $expiresAt]);
+        $this->roles()->attach($id, ['expires_at' => $expiresAt, 'permitable_id' => optional($giver)->getKey()]);
 
         $this->flushUserRolesCache();
 
@@ -613,11 +620,12 @@ trait LaravelRolesUserTrait
     /**
      * Determine if user has any of the given roles.
      *
-     * @param string|array|null $roles
+     * @param string|array|null                         $roles
+     * @param \Illuminate\Database\Eloquent\Model|null  $giver
      * @return bool
      */
-    public function hasRole($roles)
+    public function hasRole($roles, $giver = null)
     {
-        return (bool)$this->checkHasRoles(Arr::wrap($roles));
+        return (bool)$this->checkHasRoles(Arr::wrap($roles), $giver);
     }
 }

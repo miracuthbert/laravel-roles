@@ -13,15 +13,23 @@ use Miracuthbert\LaravelRoles\Models\Role;
 
 trait LaravelRolesHelperTrait
 {
+
     /**
      * Determine if user has given roles.
      *
-     * @param array $roles
+     * @param array                                     $roles
+     * @param \Illuminate\Database\Eloquent\Model|null  $giver
      * @return mixed
      */
-    public function checkHasRoles($roles)
+    public function checkHasRoles($roles, $giver = null)
     {
         $collection = $this->getUserRoles();
+
+        if ($giver) {
+            return $collection->where(function ($role) use($giver) {
+                return $role->pivot->permitable_id === $giver->getKey();
+            })->count();
+        }
 
         return $collection->whereIn('slug', $roles)->count();
     }
@@ -62,9 +70,17 @@ trait LaravelRolesHelperTrait
      */
     public function roles()
     {
+        if (($pivotModel = config('laravel-roles.roles.pivot_model'))) {
+            return $this->belongsToMany(Role::class, 'user_roles')
+                ->using($pivotModel)
+                ->withTimestamps()
+                ->withPivot(config('laravel-roles.roles.pivot', ['expires_at', 'permitable_id']));
+
+        }
+
         return $this->belongsToMany(Role::class, 'user_roles')
             ->withTimestamps()
-            ->withPivot(['expires_at']);
+            ->withPivot(config('laravel-roles.roles.pivot', ['expires_at', 'permitable_id']));
     }
 
     /**
@@ -274,11 +290,17 @@ trait LaravelRolesHelperTrait
     public function getGiverRoles($giver)
     {
         if (ConfigHelper::cacheEnabled()) {
-            $cacheKey = array_search(get_class($giver), config('laravel-roles.models')) . '_' . $giver->getKey();
+            $cacheKey = ($type = array_search(get_class($giver), config('laravel-roles.models'))) . '_' . $giver->getKey();
 
             return Cache::remember('laravelroles_roles_' . $cacheKey,
                 ConfigHelper::cacheExpiryTime(),
-                function () use ($giver) {
+                function () use ($giver, $type) {
+                    if (config('laravel-roles.allow_shared_roles')) {
+                        $roles = Role::whereType($type)->whereNull('roleable_id')->active()->get();
+
+                        $giver->roles->push(...$roles);
+                    }
+
                     return $giver->roles;
                 });
         }
