@@ -26,8 +26,8 @@ trait LaravelRolesHelperTrait
         $collection = $this->getUserRoles();
 
         if ($giver) {
-            return $collection->where(function ($role) use($giver) {
-                return $role->pivot->permitable_id === $giver->getKey();
+            return $collection->whereIn('slug', $roles)->where(function ($role) use($giver) {
+                return $role->roleable ? $role->roleable->is($giver) : $role->pivot->permitable_id === $giver->getKey();
             })->count();
         }
 
