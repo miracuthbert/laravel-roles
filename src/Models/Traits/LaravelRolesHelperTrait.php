@@ -289,23 +289,42 @@ trait LaravelRolesHelperTrait
      */
     public function getGiverRoles($giver)
     {
-        if (ConfigHelper::cacheEnabled()) {
-            $cacheKey = ($type = array_search(get_class($giver), config('laravel-roles.models'))) . '_' . $giver->getKey();
+        $type = array_search(
+            get_class($giver),
+            config('laravel-roles.models')
+        );
 
-            return Cache::remember('laravelroles_roles_' . $cacheKey,
+        if (ConfigHelper::cacheEnabled()) {
+            $cacheKey = $type . '_' . $giver->getKey();
+
+            return Cache::remember(
+                'laravelroles_roles_' . $cacheKey,
                 ConfigHelper::cacheExpiryTime(),
                 function () use ($giver, $type) {
-                    if (config('laravel-roles.allow_shared_roles')) {
-                        $roles = Role::whereType($type)->whereNull('roleable_id')->active()->get();
+                    $roles = Role::whereType($type)
+                            ->whereNull('roleable_id')
+                            ->active()
+                            ->get();
 
-                        $giver->roles->push(...$roles);
+                    $collection = $giver->roles;
+
+                    if (config('laravel-roles.allow_shared_roles')) {
+                        $collection->push(...$roles);
                     }
 
-                    return $giver->roles;
-                });
+                    return $collection;
+                }
+            );
         }
 
-        return $giver->roles;
+        $roles = Role::whereType($type)
+                        ->whereNull('roleable_id')
+                        ->active()
+                        ->get();
+
+        $collection = $giver->roles->push(...$roles);
+
+        return $collection;
     }
 
     /**
