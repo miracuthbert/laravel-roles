@@ -28,7 +28,7 @@ trait LaravelRolesHelperTrait
         if ($giver) {
             return $collection->whereIn('slug', $roles)->where(function ($role) use($giver) {
                 return $role->roleable ? $role->roleable->is($giver) : $role->pivot->permitable_id === $giver->getKey();
-            })->count();
+            })->whereNull('pivot_expires_at')->count();
         }
 
         return $collection->whereIn('slug', $roles)->count();
@@ -110,7 +110,7 @@ trait LaravelRolesHelperTrait
             return $value;
         }
 
-        if (is_int($value)) {
+        if (is_numeric($value)) {
             return Role::find($value);
         }
 

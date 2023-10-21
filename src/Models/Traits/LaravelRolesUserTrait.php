@@ -480,8 +480,8 @@ trait LaravelRolesUserTrait
     /**
      * Revoke given role now or at the given time.
      *
-     * @param \Miracuthbert\LaravelRoles\Models\Role $role
-     * @param null $expiresAt
+     * @param int|\Miracuthbert\LaravelRoles\Models\Role $role
+     * @param mixed $expiresAt
      * @param bool $never
      * @return bool
      */
@@ -494,15 +494,20 @@ trait LaravelRolesUserTrait
         // set expiry null if never expires if never expires
         $expiry = $never ? null : $expiresAt;
 
-        $updated = $this->roles()
+        $roles = $this->roles();
+
+        $query = $roles->newPivotStatementForId($id)
             ->whereNull('expires_at')
-            ->orWhere('expires_at', '>', Carbon::now())
-            ->updateExistingPivot($id, [
-                'expires_at' => $expiry
-            ]);
+            ->orWhere('expires_at', '>', Carbon::now());
+
+        $done = $query->update([
+            'expires_at' => $expiry,
+        ]);
 
         // check if updated
-        if (!$updated) {
+        if ($done < 0) {
+            $this->flushUserRolesCache();
+
             return false;
         }
 
@@ -515,31 +520,42 @@ trait LaravelRolesUserTrait
      * Revoke all or given roles for the model.
      *
      * @param array $roles
-     * @param null $giver
+     * @param null|\Illuminate\Database\Eloquent\Model $giver
      * @return bool
      */
     public function revokeRoles($roles = [], $giver = null)
     {
         // check if has `GIVER` passed
-        if (isset($giver)) {
+        if ($giver) {
+            $revoked = 0;
+
             // revoke only passed roles
             if (count($roles) > 0) {
                 $detachableRoles = $giver->roles()->whereIn('id', $roles)->get()->pluck(['id'])->toArray();
 
-                $detachableRoles->each(function ($role) {
-                    $this->revokeRoleAt($role);
+                $detachableRoles->each(function ($role) use (&$revoked) {
+                    $done = $this->revokeRoleAt($role);
+
+                    if ($done) {
+                        $revoked++;
+                    }
                 });
             } else { // revoke all roles
                 $this->roles()
                     ->whereIn('roles.id', $giver->roles->pluck('id')->toArray())
-                    ->each(function ($role) {
-                        $this->revokeRoleAt($role);
+                    ->orWherePivot('permitable_id', $giver->getKey())
+                    ->each(function ($role) use (&$revoked) {
+                        $done = $this->revokeRoleAt($role);
+
+                        if ($done) {
+                            $revoked++;
+                        }
                     });
             }
 
             $this->flushUserRolesCache();
 
-            return true;
+            return $revoked > 0;
         }
 
         // stop if user has no roles
