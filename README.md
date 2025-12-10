@@ -47,7 +47,7 @@ By default the package includes a seeder for roles and permissions, `RolesAndPer
 You can add it to your `DatabaseSeeder` or use the command below to run it in isolation.
 
 ```
-php artisan db:seed --class=RolesAndPermissionsTableSeeder
+php artisan db:seed --class=\Miracuthbert\LaravelRoles\Database\Seeders\RolesAndPermissionsTableSeeder
 ```
 
 > See the [usage](#usage) section on how to assign a role to a user via the console.
@@ -60,7 +60,7 @@ To customize the package usage, copy the package config to your local config by 
 php artisan vendor:publish --tag=laravel-roles-config
 ```
 
-The package includes configuration for:  
+The package includes configuration for:
 
 ### Role Sharing
 
@@ -84,17 +84,17 @@ Under middleware you can configure the `abort_code`, which by default is `403`.
 ### Permitable Types
 
 You can setup the types of role and permissions allowed to be created within your app.
- 
-This can be useful in a multi-tenant app for filtering out `Admin` and `Tenant` based permissions and roles. 
 
-For example if your application has `teams` and each member performs unique tasks you can define a permission or role 
+This can be useful in a multi-tenant app for filtering out `Admin` and `Tenant` based permissions and roles.
+
+For example if your application has `teams` and each member performs unique tasks you can define a permission or role
 type `team` under `permitables` in the config file which can be used to filter out only `team` permissions or roles.
 
 ```php
 'team' => 'Team'
 ```
 
-> Permitable types for non admin roles need to be linked to added as a key in the models array in the config file. 
+> Permitable types for non admin roles need to be linked to added as a key in the models array in the config file.
 
 ### Models
 
@@ -115,7 +115,7 @@ To start assigning roles and permissions to users, you must first add the `Larav
 ### Assigning a Role
 
 #### Basic
-To assign a role to a user you can call the `assignRole` method on a User model instance. 
+To assign a role to a user you can call the `assignRole` method on a User model instance.
 
 The `assignRole` method accepts a `role` (Role model instance), `expiresAt` a date which is optional and
  `giver` an instance Eloquent Model among `models` registered in [configuration](#models) which is optional.
@@ -141,7 +141,7 @@ php artisan role:assign johndoe@example.org admin-root
 
 ### Revoking a Role
 
-Revoking a role is the same as assign, where the `revokeRoleAt` method is called on a User model instance. 
+Revoking a role is the same as assign, where the `revokeRoleAt` method is called on a User model instance.
 
 The method accepts a `role` (Role model instance) and `expiresAt` a date which is optional.
 
@@ -153,7 +153,7 @@ $user->revokeRoleAt($role, $expiresAt);
 
 ### Revoking all Roles
 
-To revoke all roles from a user, call the `revokeRoles` method on a User model instance. 
+To revoke all roles from a user, call the `revokeRoles` method on a User model instance.
 
 The method accepts an optional array of `roles` (or a collection of Role model instances).
 
@@ -162,7 +162,7 @@ The method accepts an optional array of `roles` (or a collection of Role model i
 _Note:_ Revoking a role just set's the expired timestamp, not deleting the history of user's roles.
 
 ```php
-$user->revokeRoles(); 
+$user->revokeRoles();
 
 // with an array of values
 $user->revokeRoles(['admin-root', 'admin-basic']);
@@ -170,14 +170,14 @@ $user->revokeRoles(['admin-root', 'admin-basic']);
 
 ### Detaching all Roles
 
-To detach all roles from a user, call the `detachRoles` method on a User model instance. 
+To detach all roles from a user, call the `detachRoles` method on a User model instance.
 
 The method accepts an optional array of `roles` (or a collection of Role model instances).
 
 > Detaching roles from a user with completely delete the history of user's roles.
 
 ```php
-$user->detachRoles(); 
+$user->detachRoles();
 
 // with an array of values
 $user->detachRoles(['admin-root', 'admin-basic']);
@@ -189,7 +189,7 @@ There are various ways you can authorize a user using the package:
 
 ### Roles
 
-To check a user has a valid role use the `slug` of a valid Role model. 
+To check a user has a valid role use the `slug` of a valid Role model.
 
 > The role must be `usable` (active).
 
@@ -226,7 +226,7 @@ if($user->hasRole('admin-root', 'manager', 'editor')) {
 
 #### Middleware
 
-You can user the `role` middleware to check if user has access. 
+You can user the `role` middleware to check if user has access.
 
 It accepts a role `slug` and permission `slug` or `name`.
 
@@ -236,7 +236,7 @@ It accepts a role `slug` and permission `slug` or `name`.
 // Just role
 Route::middleware(['role:admin-root'])->get('/admin/logs');
 
-// Via role and permission 
+// Via role and permission
 Route::middleware(['role:admin-root,delete-admins'])->delete('/admin/roles/editors/revoke');
 ```
 
@@ -246,17 +246,17 @@ Route::middleware(['role:admin-root,delete-admins'])->delete('/admin/roles/edito
 public function __construct() {
     // Via permission name `browse admin`
     $this->middleware(['role:admin-root']);
-    
+
     // Via role and permission (slug or name)
     $this->middleware(['role:admin-root,delete-admins']);
 }
 ```
 
-> See permissions section to learn how to authorize a user via permissions. 
+> See permissions section to learn how to authorize a user via permissions.
 
 ### Permissions
 
-To check a user has access via permission use a `slug` or `name` of a valid Permission model. 
+To check a user has access via permission use a `slug` or `name` of a valid Permission model.
 
 eg. a permission named `browse admin` can be passed as `browse-admin` or `browse admin`.
 
@@ -265,9 +265,9 @@ eg. a permission named `browse admin` can be passed as `browse-admin` or `browse
 An additional parameter `giver` is accepted, if you have to check for permissions based on the model that assigned it.
 
 For example, to check a user has a permission through a role of type `team`:
- 
-- You can be pass an instance of `Team` model 
-- Or pass a type with a corresponding id: `team:1`. 
+
+- You can be pass an instance of `Team` model
+- Or pass a type with a corresponding id: `team:1`.
 
 Whether the `id` is  a `slug` or a basic `id`, it will be resolved by the package.
 
@@ -355,13 +355,13 @@ Route::middleware(['permission: browse-admin'])->get('/admin/dashboard');
 public function __construct() {
     // Via permission name `browse admin`
     $this->middleware(['permission: browse admin']);
-    
+
     // Via permission slug `browse-admin`
     $this->middleware(['permission: browse-admin']);
 
     // Via permission name `browse admin` with giver, the id should be fetched from the request or dynamically resolved
     $this->middleware(['permission: browse admin, team:' . $request->team]);
-    
+
     // Via permission slug `browse-admin` with giver, the id should be fetched from the request or dynamically resolved
     $this->middleware(['permission: browse-admin, team:' . $request->team]);
 }
