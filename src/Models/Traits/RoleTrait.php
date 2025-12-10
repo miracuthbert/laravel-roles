@@ -49,7 +49,7 @@ trait RoleTrait
     {
         Cache::forget('laravelroles_permissions_map');
 
-        $this->users->chunk(100, function ($collection) {
+        $this->users()->chunk(100, function ($collection) {
             $collection->each(function ($user) {
                 $user->flushCache();
             });
