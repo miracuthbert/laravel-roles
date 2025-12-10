@@ -2,6 +2,7 @@
 
 namespace Miracuthbert\LaravelRoles\Tests;
 
+use Miracuthbert\LaravelRoles\Tests\TestCase;
 use Miracuthbert\LaravelRoles\Models\Permission;
 use Miracuthbert\LaravelRoles\Tests\Models\User;
 

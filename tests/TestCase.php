@@ -4,8 +4,8 @@ namespace Miracuthbert\LaravelRoles\Tests;
 
 use Eloquent;
 use Kalnoy\Nestedset\NestedSetServiceProvider;
-use Miracuthbert\LaravelRoles\LaravelRolesServiceProvider;
 use Miracuthbert\LaravelRoles\Tests\Models\User;
+use Miracuthbert\LaravelRoles\LaravelRolesServiceProvider;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
