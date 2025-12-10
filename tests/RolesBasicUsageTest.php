@@ -2,10 +2,10 @@
 
 namespace Miracuthbert\LaravelRoles\Tests;
 
-use Miracuthbert\LaravelRoles\Models\Role;
 use Miracuthbert\LaravelRoles\Permitable;
+use Miracuthbert\LaravelRoles\Models\Role;
+use Miracuthbert\LaravelRoles\Tests\TestCase;
 use Miracuthbert\LaravelRoles\Tests\Models\User;
-use RolesAndPermissionsTableSeeder;
 
 class RolesBasicUsageTest extends TestCase
 {
@@ -47,7 +47,7 @@ class RolesBasicUsageTest extends TestCase
         // assert role exists
         $this->assertNotEmpty($role);
 
-        $date = now()->addDay();
+        $date = now()->copy()->addDay();
 
         // assert role assigned
         $this->assertTrue($user->assignRole($role, $date));
@@ -55,7 +55,7 @@ class RolesBasicUsageTest extends TestCase
         $user->refresh();
 
         // assert date matches
-        $this->assertTrue($date->eq($user->roles->where('slug', $role->slug)->first()->pivot->expires_at));
+        $this->assertTrue($date->isSameAs('"Y-m-d H:i:s"', $user->roles->where('slug', $role->slug)->first()->pivot->expires_at));
     }
 
     /**
