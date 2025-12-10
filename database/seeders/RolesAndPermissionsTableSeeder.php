@@ -1,10 +1,12 @@
 <?php
 
+namespace Miracuthbert\LaravelRoles\Database\Seeders;
+
+use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
+use Miracuthbert\LaravelRoles\Models\Role;
 use Miracuthbert\LaravelRoles\Helpers\Roles;
 use Miracuthbert\LaravelRoles\Models\Permission;
-use Miracuthbert\LaravelRoles\Models\Role;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class RolesAndPermissionsTableSeeder extends Seeder
 {

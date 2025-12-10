@@ -180,7 +180,7 @@ class PermissionsBasicUsageTest extends TestCase
      */
     protected function seedRoles(): void
     {
-        $this->seed(RolesAndPermissionsTableSeeder::class);
+        $this->seed(\Miracuthbert\LaravelRoles\Database\Seeders\RolesAndPermissionsTableSeeder::class);
     }
 
     /**
